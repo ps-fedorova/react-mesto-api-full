@@ -1,26 +1,39 @@
 // Здесь только настройки сервера
 
+// Ключ заносят в переменные окружения.
+// Для этого создают файл с расширением .env в корне проекта, и в нём объявляют env-переменные:
+// NODE_ENV=production
+// JWT_SECRET=eb28135ebcfc17578f96d4d65b6c7871f2c803be4180c165061d5c2db621c51b
+// Чтобы загрузить этот файл в Node.js, нужно установить в проект модуль dotenv
+require('dotenv').config();
+
 const express = require('express');
 
-const app = express();
-// const path = require('path');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+
+const { auth } = require('./middleware/auth');
+const { limiter } = require('./middleware/expressRateLimit');
+const { requestLogger, errorLogger } = require('./middleware/logger');
+const { validateRegister, validateLogin } = require('./middleware/celebrateValidation/celebrateValidation');
 
 const { usersRouter, cardsRouter } = require('./routes/exports');
-const { limiter } = require('./middleware/express-rate-limit');
-const {
-  SERVER_ERROR,
-  CLIENT_ERROR,
-} = require('./libs/statusMessages');
 
+const { SERVER_ERROR, CLIENT_ERROR } = require('./libs/statusMessages');
+
+const { login, createUser } = require('./controllers/controllersUsers');
+
+const app = express();
 const { PORT = 3000 } = process.env; // const PORT = process.env.PORT || 3000;
 
 mongoose.connect('mongodb://localhost:27017/mestodb', { // подключение БД
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
+  useUnifiedTopology: true,
 })
   .then(() => {
     console.log('База данных подключена');
@@ -29,25 +42,29 @@ mongoose.connect('mongodb://localhost:27017/mestodb', { // подключени�
     console.log(`Ошибка при подключении базы данных: ${err}`);
   });
 
-// Решение для временной авторизации
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5f53d7573eefe90078a6c390',
-  };
-  next();
-});
+app.use(cookieParser());
+app.use(errors());
 
 app.use(helmet()); // для простановки security-заголовков для API
 app.use(limiter); // для ограничения количества запросов (до 100 раз за 15 минут)
 
 app.use(bodyParser.json()); // для собирания JSON-формата
-app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
+app.use(bodyParser.urlencoded({ extended: false })); // для приёма веб-страниц внутри POST-запроса
 
-// отдать статичные данные из папки "public"
-// app.use(express.static(path.join(__dirname, 'public')));
+app.get('/crash-test', () => { // краш-тест сервера
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
-app.use('/users', usersRouter); // отдать пути
-app.use('/cards', cardsRouter);
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateRegister, createUser);
+
+app.use('/users', auth, usersRouter); // отдать пути и защитить их авторизацией
+app.use('/cards', auth, cardsRouter);
+
+app.use(requestLogger);
+app.use(errorLogger);
 
 app.use((err, req, res, next) => {
   if (err.status !== '500') {

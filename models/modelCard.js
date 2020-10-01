@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const {
   requiredTrue,
   min,
   max,
-  validURL,
 } = require('../libs/validationParameters');
 
 const cardSchema = new mongoose.Schema({
@@ -17,7 +17,11 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: requiredTrue,
-    match: validURL,
+    validate: {
+      validator(link) {
+        return validator.isURL(link);
+      },
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

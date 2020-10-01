@@ -1,11 +1,14 @@
 const Card = require('../models/modelCard');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
+
 const {
   SUCCESS,
   CLIENT_ERROR,
 } = require('../libs/statusMessages');
 
+// 1. контроллер getCards возвращает все карточки
 const getCards = (req, res, next) => {
   Card.find({})
     .populate('user')
@@ -13,6 +16,7 @@ const getCards = (req, res, next) => {
     .catch(next);
 };
 
+// 2. контроллер createCard создает карточку
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
@@ -28,16 +32,25 @@ const createCard = (req, res, next) => {
     .catch(next);
 };
 
+// 3. контроллер deleteCard удаляет карточку по идентификатору
 const deleteCard = (req, res, next) => {
-  Card.findByIdAndDelete(req.params._id)
+  Card.findById(req.params._id)
     .orFail()
     .catch(() => {
       throw new NotFoundError({ message: CLIENT_ERROR.CARD_NOT_FOUND });
     })
-    .then(() => res.send({ message: SUCCESS.REMOVE_CARD }))
+    .then((card) => {
+      if (card.owner.toString() !== req.user._id) {
+        throw new ForbiddenError({ message: CLIENT_ERROR.FORBIDDEN });
+      }
+      Card.findByIdAndDelete(req.params._id)
+        .then(() => res.send({ message: SUCCESS.REMOVE_CARD }))
+        .catch(next);
+    })
     .catch(next);
 };
 
+// 4. контроллер likeCard ставит лайк карточке
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params._id,
     { $addToSet: { likes: req.user._id } },
@@ -50,6 +63,7 @@ const likeCard = (req, res, next) => {
     .catch(next);
 };
 
+// 5. контроллер dislikeCard убирает лайк с карточки
 const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params._id,
     { $pull: { likes: req.user._id } },
