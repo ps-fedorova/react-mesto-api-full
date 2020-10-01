@@ -1,5 +1,8 @@
 # Проект Mesto бэкенд
 
+Домен: http://fedorova.students.nomoreparties.co   
+Публичный IPv4: 130.193.48.179
+ 
 ## Технологии
    
    * Node.js
@@ -8,6 +11,9 @@
    * MongoDB
 
 ## Роуты
+
+`POST /signup` — роут для регистрации   
+`POST /signin` — роут для логина   
 
 `GET /users` — возвращает всех пользователей   
 `GET /users/:userId` - возвращает пользователя по _id   
