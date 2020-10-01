@@ -29,6 +29,8 @@ const { login, createUser } = require('./controllers/controllersUsers');
 const app = express();
 const { PORT = 3000 } = process.env; // const PORT = process.env.PORT || 3000;
 
+app.use(cookieParser());
+
 mongoose.connect('mongodb://localhost:27017/mestodb', { // подключение БД
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -42,8 +44,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', { // подключени�
     console.log(`Ошибка при подключении базы данных: ${err}`);
   });
 
-app.use(cookieParser());
-app.use(errors());
+app.use(requestLogger);
 
 app.use(helmet()); // для простановки security-заголовков для API
 app.use(limiter); // для ограничения количества запросов (до 100 раз за 15 минут)
@@ -63,9 +64,9 @@ app.post('/signup', validateRegister, createUser);
 app.use('/users', auth, usersRouter); // отдать пути и защитить их авторизацией
 app.use('/cards', auth, cardsRouter);
 
-app.use(requestLogger);
 app.use(errorLogger);
 
+app.use(errors());
 app.use((err, req, res, next) => {
   if (err.status !== '500') {
     res.status(err.status)
