@@ -15,6 +15,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 
+const NotFoundError = require('./errors/404_NotFoundError');
+
 const { auth } = require('./middleware/auth');
 const { limiter } = require('./middleware/expressRateLimit');
 const { requestLogger, errorLogger } = require('./middleware/logger');
@@ -64,9 +66,14 @@ app.post('/signup', validateRegister, createUser);
 app.use('/users', auth, usersRouter); // отдать пути и защитить их авторизацией
 app.use('/cards', auth, cardsRouter);
 
+app.use(() => {
+  throw new NotFoundError({ message: CLIENT_ERROR.RESOURCE_NOT_FOUND });
+});
+
 app.use(errorLogger);
 
 app.use(errors());
+
 app.use((err, req, res, next) => {
   if (err.status !== '500') {
     res.status(err.status)
@@ -76,11 +83,6 @@ app.use((err, req, res, next) => {
   res.status(500)
     .send({ message: `${SERVER_ERROR.INTERNAL_SERVER_ERROR}: ${err.message}` });
   next();
-});
-
-app.use((req, res) => {
-  res.status(404)
-    .send({ message: CLIENT_ERROR.RESOURCE_NOT_FOUND });
 });
 
 app.listen(PORT, () => {
