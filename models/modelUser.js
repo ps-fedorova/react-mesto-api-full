@@ -58,12 +58,12 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(email,
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError({ message: CLIENT_ERROR.UNAUTHORIZED });
+        throw new UnauthorizedError({ message: CLIENT_ERROR.AUTHENTICATION });
       }
       return bcryptjs.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError({ message: CLIENT_ERROR.UNAUTHORIZED });
+            throw new UnauthorizedError({ message: CLIENT_ERROR.AUTHENTICATION });
           }
           return user;
         });
