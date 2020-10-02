@@ -1,6 +1,6 @@
 const usersRouter = require('express')
   .Router();
-const { validateUserUpdate, validateAvatar } = require('../middleware/celebrateValidation/celebrateValidation');
+const { validateUserUpdate, validateAvatar, validateId } = require('../middleware/celebrateValidation/celebrateValidation');
 const {
   getAllUsers,
   getCurrentUser,
@@ -9,7 +9,7 @@ const {
 } = require('../controllers/controllersUsers');
 
 usersRouter.get('/', getAllUsers);
-usersRouter.get('/:_id', getCurrentUser);
+usersRouter.get('/:_id', validateId, getCurrentUser);
 usersRouter.patch('/me', validateUserUpdate, updateUser);
 usersRouter.patch('/me/avatar', validateAvatar, updateAvatar);
 

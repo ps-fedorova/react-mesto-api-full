@@ -2,7 +2,7 @@ const { Joi, CelebrateError } = require('celebrate');
 const validator = require('validator');
 
 const {
-  string, empty, min, max, required, emailMessage, uri, excess,
+  string, empty, min, max, required, emailMessage, uri, excess, alphanum, length, hex,
 } = require('../../libs/joiMessages');
 
 //
@@ -90,6 +90,21 @@ const about = Joi
   });
 
 //
+const _id = Joi
+  .string()
+  .alphanum()
+  .length(24)
+  .hex()
+  .messages({
+    'string.base': string,
+    'string.empty': empty,
+    'string.alphanum': alphanum,
+    'string.length': length,
+    'string.hex': hex,
+    'any.required': required,
+  });
+
+//
 const excessObjects = {
   'object.unknown': excess,
 };
@@ -101,5 +116,6 @@ module.exports = {
   avatar,
   name,
   about,
+  _id,
   excessObjects,
 };
