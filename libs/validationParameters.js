@@ -12,13 +12,10 @@ function max(y) {
 }
 
 // const regEx = /(https?|ftp|file):\/\/(www\.)?([-a-z0-9]+\.)([0-9a-z].*)/;
-const invalidURL = 'Введён некорректный URL';
 
 module.exports = {
   requiredTrue: [true, 'обязательное поле для заполнения'],
   min,
   max,
   // validURL: [regEx, 'введён некорректный URL'],
-  invalidURL,
-
 };
