@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcryptjs = require('bcryptjs');
-const UnauthorizedError = require('../errors/UnauthorizedError');
+const UnauthorizedError = require('../errors/401_UnauthorizedError');
 
 const {
   CLIENT_ERROR,
@@ -58,12 +58,12 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(email,
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError({ message: CLIENT_ERROR.INVALID_URL_OR_PASSWORD });
+        throw new UnauthorizedError({ message: CLIENT_ERROR.UNAUTHORIZED });
       }
       return bcryptjs.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError({ message: CLIENT_ERROR.INVALID_URL_OR_PASSWORD });
+            throw new UnauthorizedError({ message: CLIENT_ERROR.UNAUTHORIZED });
           }
           return user;
         });

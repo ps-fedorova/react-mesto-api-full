@@ -1,13 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/modelUser');
-const UnauthorizedError = require('../errors/UnauthorizedError');
-const NotFoundError = require('../errors/NotFoundError');
-const BadRequestError = require('../errors/BadRequestError');
-const {
-  SUCCESS,
-  CLIENT_ERROR,
-} = require('../libs/statusMessages');
+const BadRequestError = require('../errors/400_BadRequestError');
+const NotFoundError = require('../errors/404_NotFoundError');
+const ConflictError = require('../errors/409_ConflictError');
+const { SUCCESS, CLIENT_ERROR } = require('../libs/statusMessages');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -23,7 +20,7 @@ const createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'MongoError' && err.code === 11000) {
-        throw new UnauthorizedError({ message: CLIENT_ERROR.UNAUTHORIZED });
+        throw new ConflictError({ message: CLIENT_ERROR.CONFLICT });
       } else next(err);
     })
     .then((user) => res.status(201).send({

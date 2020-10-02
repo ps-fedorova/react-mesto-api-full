@@ -1,7 +1,7 @@
 const Card = require('../models/modelCard');
-const BadRequestError = require('../errors/BadRequestError');
-const NotFoundError = require('../errors/NotFoundError');
-const ForbiddenError = require('../errors/ForbiddenError');
+const BadRequestError = require('../errors/400_BadRequestError');
+const NotFoundError = require('../errors/404_NotFoundError');
+const ForbiddenError = require('../errors/403_ForbiddenError');
 
 const {
   SUCCESS,
