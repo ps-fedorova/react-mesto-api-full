@@ -9,6 +9,28 @@ _! На данный момент приложение доступно толь
    * Postman
    * MongoDB
 
+## Запуск проекта
+
+Для работы с проектом вам понадобятся git, NodeJS, MongoDB, Postman. Установить программное обеспечение можно по следующим ссылкам:
+
+* [Скачать git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+* [Скачать NodeJS](https://nodejs.org/en/download/package-manager/)
+* [Скачать MongoDB](https://docs.mongodb.com/manual/administration/install-community/)
+* [Скачать Postman](https://www.postman.com/downloads/)
+
+## Локальная установка
+
+1. git clone https://github.com/ps-fedorova/news-explorer-api-full.git
+2. cd news-explorer-api-full
+3. npm i
+
+## Запуск проекта
+
+`npm run start` — запускает сервер   
+`npm run dev` — запускает сервер с hot-reload
+
+Локальный сервер доступен по адресу http://localhost:3000.
+
 ## Роуты
 
 `POST /signup` — роут для регистрации   
@@ -26,6 +48,7 @@ _! На данный момент приложение доступно толь
 `PUT /cards/:cardId/likes` — поставить лайк карточке   
 `DELETE /cards/:cardId/likes` — убрать лайк с карточки   
   
+Основной функционал разрабатывался в репозитории https://github.com/ps-fedorova/express-mesto
 
 ## Запуск проекта
 
